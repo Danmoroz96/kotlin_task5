@@ -1,82 +1,104 @@
-/**
- * Task 5: Counter App Simulation
- * This program simulates the functionality of a counter app with independent
- * counters, showing the use of classes and methods to manage mutable state.
- * Since this must run as a console application, the "buttons" and "text field"
- * UI elements are simulated by function calls and initial setup.
- */
+package com.example.task5 // MAKE SURE TO KEEP YOUR OWN PACKAGE NAME HERE
 
-// Class to manage the state and logic for a single independent counter
-class Counter(private val name: String, initialValue: Int = 0) {
-    // Mutable state property for the current count
-    var count: Int = initialValue
-        private set // count can only be changed internally by the class methods
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.* // Using Material3
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 
-    // Method to set the starting value (simulating the text field input)
-    fun setStartValue(value: Int) {
-        count = value
-        println("-> $name starting value set to: $count")
-    }
-
-    // Method to increment the counter (simulating the '+' button)
-    fun increment() {
-        count++
-    }
-
-    // Method to decrement the counter (simulating the '-' button)
-    fun decrement() {
-        count--
-    }
-
-    // Method to display the counter state
-    fun display() {
-        println("[$name] Current Count: $count")
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MaterialTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    ThreeCountersScreen()
+                }
+            }
+        }
     }
 }
 
-fun main() {
-    // --- 1. Initialize and Set Starting Values (Simulating Text Field Input) ---
+// STEP 3: The Main Screen holding three independent counters
+@Composable
+fun ThreeCountersScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(24.dp) // Space between the counter rows
+    ) {
+        Text(
+            text = "Multi-Counter App",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
-    // Create three independent counters (in a column)
-    val counter1 = Counter("Counter 1")
-    val counter2 = Counter("Counter 2")
-    val counter3 = Counter("Counter 3")
+        HorizontalDivider()
 
-    // Set starting values
-    counter1.setStartValue(10) // Simulate user entering 10
-    counter2.setStartValue(50) // Simulate user entering 50
-    counter3.setStartValue(-5) // Simulate user entering -5
+        // Adding the three independent counters
+        CounterRow(label = "Counter 1")
+        CounterRow(label = "Counter 2")
+        CounterRow(label = "Counter 3")
+    }
+}
 
-    println("\n--- Initial State ---")
-    counter1.display()
-    counter2.display()
-    counter3.display()
-    
-    // --- 2. Perform Counting Operations (Simulating Button Clicks) ---
+// STEP 1 & 2: A reusable component containing buttons and an editable text field
+@Composable
+fun CounterRow(label: String) {
+    // We use a String state so the user can type into it.
+    // We parse it to an Int when doing math.
+    var textValue by remember { mutableStateOf("0") }
 
-    println("\n--- Performing Actions ---")
-    
-    // Counter 1: Count Up
-    counter1.increment() // + button click
-    counter1.increment() // + button click
-    println("-> Counter 1: ++")
-    
-    // Counter 2: Count Down
-    counter2.decrement() // - button click
-    counter2.decrement() // - button click
-    counter2.decrement() // - button click
-    println("-> Counter 2: ---")
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
 
-    // Counter 3: Count Up and Down
-    counter3.increment() // + button click
-    counter3.increment() // + button click
-    counter3.decrement() // - button click
-    println("-> Counter 3: ++-")
+        Text(text = label, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
 
-    // --- 3. Final State Display ---
-    
-    println("\n--- Final State ---")
-    counter1.display()
-    counter2.display()
-    counter3.display()
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Button: Decrease
+            Button(onClick = {
+                val current = textValue.toIntOrNull() ?: 0
+                textValue = (current - 1).toString()
+            }) {
+                Text("-")
+            }
+
+            // Text Field: Input starting value or view current count
+            OutlinedTextField(
+                value = textValue,
+                onValueChange = { newValue ->
+                    // Validation: Only allow digits and negative sign
+                    if (newValue.isEmpty() || newValue.matches(Regex("^-?\\d*$"))) {
+                        textValue = newValue
+                    }
+                },
+                modifier = Modifier.width(100.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                maxLines = 1,
+                textStyle = LocalTextStyle.current.copy(textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            )
+
+            // Button: Increase
+            Button(onClick = {
+                val current = textValue.toIntOrNull() ?: 0
+                textValue = (current + 1).toString()
+            }) {
+                Text("+")
+            }
+        }
+    }
 }
