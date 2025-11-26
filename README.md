@@ -13,3 +13,5 @@ Starting Value Input: The setStartValue method simulates the user input field, s
 Counting: A sequence of actions (increment and decrement) are performed on the independent objects, demonstrating that changing one counter does not affect the others.
 
 Output: The state of all three counters is displayed after initialization and after the actions are performed.
+
+![Screenshot 2025-11-26 184912](https://github.com/user-attachments/assets/6980d6bd-6478-481f-93d1-7677ae4b90b6)
